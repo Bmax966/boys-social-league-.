@@ -1,0 +1,74 @@
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Home, Compass, Vote, Trophy, User, Shield } from 'lucide-react';
+
+export default function Navbar() {
+  const { profile } = useAuth();
+  const location = useLocation();
+
+  const navItems = [
+    { name: 'Home', path: '/', icon: Home },
+    { name: 'Discover', path: '/discover', icon: Compass },
+    { name: 'Vote', path: '/vote', icon: Vote },
+    { name: 'Ranks', path: '/leaderboard', icon: Trophy },
+    { name: 'Profile', path: profile ? `/u/${profile.username}` : '/login', icon: User },
+  ];
+
+  if (profile?.role === 'admin') {
+    navItems.splice(4, 0, { name: 'Admin', path: '/admin', icon: Shield });
+  }
+
+  return (
+    <>
+      <header className="sticky top-0 z-40 bg-[#080A10]/90 backdrop-blur-md border-b border-[#1E2538] px-4 py-3">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <span className="text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-[#5B8CFF] to-[#8B5CF6]">
+              BSL
+            </span>
+            <span className="text-[10px] uppercase px-2 py-0.5 rounded-full bg-[#5B8CFF]/10 text-[#5B8CFF] border border-[#5B8CFF]/20 font-bold">
+              League
+            </span>
+          </Link>
+          
+          <nav className="hidden md:flex items-center gap-6">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`text-sm font-medium transition-colors ${
+                  location.pathname === item.path ? 'text-[#5B8CFF]' : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      </header>
+
+      {/* Mobile Bottom Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#080A10]/95 backdrop-blur-lg border-t border-[#1E2538] px-2 py-2">
+        <div className="flex justify-around items-center">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`flex flex-col items-center gap-1 transition-all ${
+                  isActive ? 'text-[#5B8CFF] scale-105' : 'text-gray-400 hover:text-gray-200'
+                }`}
+              >
+                <Icon size={20} className={isActive ? 'stroke-[2.5]' : 'stroke-2'} />
+                <span className="text-[10px] tracking-wide font-medium">{item.name}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </>
+  );
+}
